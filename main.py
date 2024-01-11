@@ -19,11 +19,35 @@ hands = mp_hands.Hands(min_detection_confidence=0.50, min_tracking_confidence=0.
 # mediapipe model setup
 gesture_path = "models/gesture_recognizer.task"
 
-gesture_option = mp.tasks.BaseOptions(model_asset_path=gesture_path)
+BaseOptions = mp.tasks.BaseOptions
+GestureRecognizer = mp.tasks.vision.GestureRecognizer
+GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
+GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
+VisionRunningMode = mp.tasks.vision.RunningMode
 
-gesture_options = mp.tasks.vision.GestureRecognizerOptions(
-    base_options=gesture_option)
-recognizer = mp.tasks.vision.GestureRecognizer.create_from_options(gesture_options)
+hand_detections = [0, 0]
+# Create a gesture recognizer instance with the live stream mode:
+def get_result_left(result: GestureRecognizerResult, output_image: mp.Image, timestamp_ms: int):
+    detection_result = result.gestures
+    if not len(detection_result) == 0:
+        hand_detections[0] = detection_result[-1][-1].category_name
+
+def get_result_right(result: GestureRecognizerResult, output_image: mp.Image, timestamp_ms: int):
+    detection_result = result.gestures
+    if not len(detection_result) == 0:
+        hand_detections[1] = detection_result[-1][-1].category_name
+
+gesture_options_left = mp.tasks.vision.GestureRecognizerOptions(
+    running_mode=VisionRunningMode.LIVE_STREAM,
+    base_options=mp.tasks.BaseOptions(model_asset_path=gesture_path),
+    result_callback=get_result_left)
+recognizer_left = mp.tasks.vision.GestureRecognizer.create_from_options(gesture_options_left)
+
+gesture_options_right = mp.tasks.vision.GestureRecognizerOptions(
+    running_mode=VisionRunningMode.LIVE_STREAM,
+    base_options=mp.tasks.BaseOptions(model_asset_path=gesture_path),
+    result_callback=get_result_right)
+recognizer_right = mp.tasks.vision.GestureRecognizer.create_from_options(gesture_options_right)
 
 game_state = GameStates.MAIN_MENU
 READY_TIME = 3
@@ -63,43 +87,14 @@ while cam.isOpened():
         image_right[ :, :image.shape[1]//2, ] = [0, 0, 0]
         image_right.flags.writeable = False
         
-        hands_results_left = hands.process(image_left)
-        hands_results_right = hands.process(image_right)
+        #hands_results_left = hands.process(image_left)
+        #hands_results_right = hands.process(image_right)
 
         image.flags.writeable = True
-        if hands_results_left.multi_hand_landmarks:
-            landmarks = []
-            for handslms in hands_results_left.multi_hand_landmarks:
-                for lm in handslms.landmark:
-                    # print(id, lm)
-                    lmx = int(lm.x * image.shape[1])
-                    lmy = int(lm.y * image.shape[1])
-
-                    landmarks.append([lmx, lmy])
-
-                # Drawing landmarks on frames
-                mp_drawing.draw_landmarks(image, handslms, mp_hands.HAND_CONNECTIONS)
-
-        if hands_results_right.multi_hand_landmarks:
-            landmarks = []
-            for handslms in hands_results_right.multi_hand_landmarks:
-                for lm in handslms.landmark:
-                    # print(id, lm)
-                    lmx = int(lm.x * image.shape[1])
-                    lmy = int(lm.y * image.shape[1])
-
-                    landmarks.append([lmx, lmy])
-
-                # Drawing landmarks on frames
-                mp_drawing.draw_landmarks(image, handslms, mp_hands.HAND_CONNECTIONS)
-
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
-        gesture_recognition_result = recognizer.recognize(mp_image)
-        
-        try:
-            print(gesture_recognition_result.gestures[0][0])
-        except:
-            pass
+        mp_image_left = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_left)
+        mp_image_right = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_right)
+        recognizer_left.recognize_async(mp_image_left, mp.Timestamp.from_seconds(time.time()).value)
+        recognizer_right.recognize_async(mp_image_right, mp.Timestamp.from_seconds(time.time()).value)
 
     elif game_state == GameStates.PLAYING:
         pass
