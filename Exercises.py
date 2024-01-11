@@ -1,3 +1,5 @@
+import numpy as np
+import mediapipe as mp
 from enum import IntEnum
 
 class Exercises(IntEnum):
@@ -22,4 +24,5 @@ def calculate_angle(a,b,c):
 
 def check_exercise(action, landmark):
     if action == Exercises.PUSHUPS:
+        
         pass # TODO: do it
