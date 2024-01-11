@@ -86,15 +86,15 @@ while cam.isOpened():
         image_right = cv2.cvtColor(image_right, cv2.COLOR_BGR2RGB)
         image_right[ :, :image.shape[1]//2, ] = [0, 0, 0]
         image_right.flags.writeable = False
-        
-        #hands_results_left = hands.process(image_left)
-        #hands_results_right = hands.process(image_right)
 
         image.flags.writeable = True
         mp_image_left = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_left)
         mp_image_right = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_right)
         recognizer_left.recognize_async(mp_image_left, mp.Timestamp.from_seconds(time.time()).value)
         recognizer_right.recognize_async(mp_image_right, mp.Timestamp.from_seconds(time.time()).value)
+
+        if hand_detections[0] == hand_detections[1] and hand_detections[0] == "Thumb_Up":
+            game_state = GameStates.START_ROUND
 
     elif game_state == GameStates.PLAYING:
         pass
