@@ -49,6 +49,8 @@ gesture_options_right = mp.tasks.vision.GestureRecognizerOptions(
     result_callback=get_result_right)
 recognizer_right = mp.tasks.vision.GestureRecognizer.create_from_options(gesture_options_right)
 
+#setup game states
+exercise_manager = Exercises.ExerciseManager()
 game_state = GameStates.MAIN_MENU
 READY_TIME = 3
 ready_cnt = 0
@@ -96,8 +98,9 @@ while cam.isOpened():
         if hand_detections[0] == hand_detections[1] and hand_detections[0] == "Thumb_Up":
             game_state = GameStates.START_ROUND
 
-    elif game_state == GameStates.PLAYING:
-        pass
+    elif game_state == GameStates.START_ROUND:
+        image.flags.writeable = True
+        cv2.putText(image, exercise_manager.get_current_exercise(), (10,500), cv2.FONT_HERSHEY_TRIPLEX, 4, (255,255,255), 2, cv2.LINE_AA)
 
     # process image, convert from RGB to BRG
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)

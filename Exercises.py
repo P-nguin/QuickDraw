@@ -1,5 +1,6 @@
 import numpy as np
 import mediapipe as mp
+import random
 from enum import IntEnum
 
 class Exercises(IntEnum):
@@ -20,9 +21,19 @@ def calculate_angle(a,b,c):
     if angle >180.0:
         angle = 360-angle
         
-    return angle 
+    return angle
 
-def check_exercise(action, landmark):
-    if action == Exercises.PUSHUPS:
-        
-        pass # TODO: do it
+class ExerciseManager():
+    _currentExercise = -1
+    def __init__(self):
+        self.get_new_exercise()
+
+    def get_new_exercise(self):
+        self._currentExercise = random.randint(0, 4)
+
+    def check_exercise(action, landmark):
+        if action == Exercises.PUSHUPS:
+            pass # TODO: do it
+
+    def get_current_exercise(self):
+        return Exercises(self._currentExercise).name
