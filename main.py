@@ -100,7 +100,20 @@ while cam.isOpened():
 
     elif game_state == GameStates.START_ROUND:
         image.flags.writeable = True
-        cv2.putText(image, exercise_manager.get_current_exercise(), (10,500), cv2.FONT_HERSHEY_TRIPLEX, 4, (255,255,255), 2, cv2.LINE_AA)
+
+        # Display Exercise on screen
+        exercise_text = exercise_manager.get_current_exercise()
+        exercise_text_size = cv2.getTextSize(exercise_text, cv2.FONT_HERSHEY_TRIPLEX, 2, 2)
+        exercise_text_x = (image.shape[1] - exercise_text_size[0][0]) // 2
+        exercise_text_y = (image.shape[0] - exercise_text_size[0][1]) // 2
+        box_margin = 15
+        image[exercise_text_y - exercise_text_size[0][1] - box_margin : exercise_text_y + box_margin, 
+              exercise_text_x - box_margin : exercise_text_x + exercise_text_size[0][0] + box_margin, ] = image[exercise_text_y - exercise_text_size[0][1] - box_margin : exercise_text_y + box_margin, 
+                                                                                                                exercise_text_x - box_margin : exercise_text_x + exercise_text_size[0][0] + box_margin, ] * 0.5
+        cv2.putText(image, exercise_text, (exercise_text_x, exercise_text_y), cv2.FONT_HERSHEY_TRIPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
+
+        
+
 
     # process image, convert from RGB to BRG
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
