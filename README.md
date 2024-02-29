@@ -1,10 +1,7 @@
-# Pistol Squat Tracker
-Pistol Squat Tracker is a simple project that uses Mediapipe to detect human skeletons and count pistol squats based on the user's movements. This project can be helpful for tracking your squat exercises and maintaining a workout routine.
+# QuickDraw
+QuickDraw is an interactive fitness game, where you compete against someone to be the last person working out. It utilizes mediapipe to track your performance as you duke it out with your opponent. 
 
 # Features
-- Real-time squat detection using Mediapipe.
+- Real-time pose detection.
 - Simple and lightweight design.
-- Counts and displays the number of squats performed.
-
-# Demo
-
+- Inituitive design, only requires a laptop.
